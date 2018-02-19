@@ -59,13 +59,13 @@
   branch = "master"
   name = "github.com/varunamachi/vaali"
   packages = ["vapp","vcmn","vdb","vlog","vnet","vsec","vuman"]
-  revision = "b6068537908dcb3b85d86fd6edd2272fbeccdb4f"
+  revision = "1d65635833d4890c0c9b82b79b7abe6a1de123a9"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","bcrypt","blowfish","pbkdf2","scrypt","ssh/terminal"]
-  revision = "d9133f5469342136e669e85192a26056b587f503"
+  revision = "650f4a345ab4e5b245a3034b110ebc7299e68186"
 
 [[projects]]
   branch = "master"
@@ -106,6 +106,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b51819de7b33e164d4897720c0aba31c5f5c67f86f16633dc374ad6b42e1a48b"
+  inputs-digest = "ccf0536191624732f93b89be8086eeb0a061f59eedc1b2f8b7d20fb0f7f3d4b4"
   solver-name = "gps-cdcl"
   solver-version = 1

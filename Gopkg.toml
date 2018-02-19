@@ -19,3 +19,11 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/varunamachi/vaali"
+
+[[constraint]]
+  name = "gopkg.in/urfave/cli.v1"
+  version = "1.20.0"
