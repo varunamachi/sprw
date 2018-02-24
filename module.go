@@ -3,6 +3,7 @@ package sprw
 import (
 	"github.com/varunamachi/sprw/entity"
 	"github.com/varunamachi/vaali/vapp"
+	"github.com/varunamachi/vaali/vnet"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -11,7 +12,7 @@ func NewModule() *vapp.Module {
 	return &vapp.Module{
 		Name:        "sprw",
 		Description: "The sparrow server",
-		Endpoints:   entity.GetEndpoints(),
+		Endpoints:   []*vnet.Endpoint{},
 		Commands:    []cli.Command{},
 		Initialize:  entity.Init,
 		Setup:       entity.Setup,
