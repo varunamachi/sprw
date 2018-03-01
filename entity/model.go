@@ -24,6 +24,7 @@ type Entity struct {
 	Variables  []vcmn.Param  `json:"variables" bson:"variables"`
 	Readers    []string      `json:"readers" bson:"readers"`
 	Writers    []string      `json:"writers" bson:"writers"`
+	Tags       []string      `json:"tags" bson:"tags"`
 	CreatedAt  time.Time     `json:"createdAt" bson:"createdAt"`
 	ModifiedAt time.Time     `json:"modifiedAt" bson:"modifiedAt"`
 	CreatedBy  string        `json:"createdBy" bson:"createdBy"`
