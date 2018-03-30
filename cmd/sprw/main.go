@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	app := vapp.NewDefaultApp(
+	app := vapp.NewWebApp(
 		"sprw",
 		vcmn.Version{
 			Major: 0,
