@@ -59,7 +59,7 @@
   branch = "master"
   name = "github.com/varunamachi/vaali"
   packages = ["vapp","vcmn","vdb","vlog","vnet","vsec","vuman"]
-  revision = "7f748c91fe686eac7a707cfbe033f5f665a22125"
+  revision = "c98ffaeee49a7ee80cfe75bc6c0949e838e98821"
 
 [[projects]]
   branch = "master"
