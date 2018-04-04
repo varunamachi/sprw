@@ -1,176 +1,73 @@
 package entity
 
-// import (
-// 	"net/http"
-// 	"time"
+import (
+	"net/http"
+	"time"
 
-// 	"github.com/labstack/echo"
-// 	"github.com/varunamachi/vaali/vdb"
-// 	"github.com/varunamachi/vaali/vlog"
-// 	"github.com/varunamachi/vaali/vnet"
-// 	"gopkg.in/mgo.v2/bson"
-// )
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+	"github.com/varunamachi/vaali/vcmn"
+	"github.com/varunamachi/vaali/vlog"
+	"github.com/varunamachi/vaali/vnet"
+	"github.com/varunamachi/vaali/vsec"
+)
 
-// func idM(id string) bson.M {
-// 	return bson.M{"_id": bson.ObjectIdHex(id)}
-// }
+func genEntityPassword(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Gen entity password")
+	entityID := ctx.Param("entityID")
+	var secret string
+	secret, err = CreateEntitySecret(entityID, vnet.GetString(ctx, "userID"))
+	vnet.AuditedSendSecret(ctx, &vnet.Result{
+		Status: status,
+		Op:     "entity_gen_secret",
+		Msg:    msg,
+		OK:     err == nil,
+		Data:   secret,
+		Err:    vcmn.ErrString(err),
+	})
+	return vlog.LogError("Sprw:Net", err)
+}
 
-// func createEntity(ctx echo.Context) (err error) {
-// 	status, msg := vnet.DefMS("Create Entity")
-// 	var entity Entity
-// 	err = ctx.Bind(&entity)
-// 	if err == nil {
-// 		entity.CreateAt = time.Now()
-// 		err = vdb.Create(EntityColn, entity)
-// 		if err != nil {
-// 			msg = "Failed to create entity in database"
-// 			status = http.StatusInternalServerError
-// 		}
-// 	} else {
-// 		msg = "Failed to retrieve entity information from the request"
-// 		status = http.StatusBadRequest
-// 	}
-// 	err = vnet.AuditedSendX(ctx, &entity, &vnet.Result{
-// 		Status: status,
-// 		Op:     "create_entity",
-// 		Msg:    msg,
-// 		OK:     err == nil,
-// 		Data:   nil,
-// 		Err:    err,
-// 	})
-// 	return vlog.LogError("S:Entity", err)
-// }
-
-// func updateEntity(ctx echo.Context) (err error) {
-// 	status, msg := vnet.DefMS("Update Entity")
-// 	var entity Entity
-// 	err = ctx.Bind(&entity)
-// 	if err == nil {
-// 		entity.ModifiedAt = time.Now()
-// 		err = vdb.Update(EntityColn, bson.M{"_id": entity.ID}, &entity)
-// 		if err != nil {
-// 			msg = "Failed to update entity in database"
-// 			status = http.StatusInternalServerError
-// 		}
-// 	} else {
-// 		msg = "Failed to retrieve entity info from request"
-// 		status = http.StatusBadRequest
-// 	}
-// 	err = vnet.AuditedSendX(ctx, &entity, &vnet.Result{
-// 		Status: status,
-// 		Op:     "update_entity",
-// 		Msg:    msg,
-// 		OK:     err == nil,
-// 		Data:   nil,
-// 		Err:    err,
-// 	})
-// 	return vlog.LogError("S:Entity", err)
-// }
-
-// func deleteEntity(ctx echo.Context) (err error) {
-// 	status, msg := vnet.DefMS("Delete Entity")
-// 	entityID := ctx.Param("entityID")
-// 	err = vdb.Delete(EntityColn, idM(entityID))
-// 	if err != nil {
-// 		msg = "Failed to delete entity from database"
-// 		status = http.StatusInternalServerError
-// 	}
-// 	err = vnet.AuditedSend(ctx, &vnet.Result{
-// 		Status: status,
-// 		Op:     "delete_entity",
-// 		Msg:    msg,
-// 		OK:     err == nil,
-// 		Data:   entityID,
-// 		Err:    err,
-// 	})
-// 	return vlog.LogError("S:Entity", err)
-// }
-
-// func getEntity(ctx echo.Context) (err error) {
-// 	status, msg := vnet.DefMS("Get Entity")
-// 	var entity *Entity
-// 	entityID := ctx.Param("entityID")
-// 	err = vdb.Get(EntityColn, idM(entityID), entity)
-// 	if err != nil {
-// 		msg = "Failed to retrieve from database, entity with ID: " + entityID
-// 		status = http.StatusInternalServerError
-// 	}
-// 	err = vnet.SendAndAuditOnErr(ctx, &vnet.Result{
-// 		Status: status,
-// 		Op:     "get_entity",
-// 		Msg:    msg,
-// 		OK:     err == nil,
-// 		Data:   entity,
-// 		Err:    err,
-// 	})
-// 	return vlog.LogError("S:Entity", err)
-// }
-
-// func getEntities(ctx echo.Context) (err error) {
-// 	status, msg := vnet.DefMS("Get Entities")
-// 	offset, limit, has := vnet.GetOffsetLimit(ctx)
-// 	var entities []*Entity
-// 	if has {
-// 		entities = make([]*Entity, 0, limit)
-// 		err = vdb.GetAll(EntityColn, "-createdAt", offset, limit, entities)
-// 		if err != nil {
-// 			msg = "Failed to retrieve entities from database"
-// 			status = http.StatusInternalServerError
-// 		}
-// 	}
-// 	err = vnet.SendAndAuditOnErr(ctx, &vnet.Result{
-// 		Status: status,
-// 		Op:     "get_entities",
-// 		Msg:    msg,
-// 		OK:     err == nil,
-// 		Data:   entities,
-// 		Err:    err,
-// 	})
-// 	return vlog.LogError("S:Entity", err)
-// }
-
-//GetEndpoints - REST endpoints for entity related operations
-// func GetEndpoints() []*vnet.Endpoint {
-// 	return []*vnet.Endpoint{
-// 		&vnet.Endpoint{
-// 			Method:   echo.POST,
-// 			URL:      "sprw/endpoint",
-// 			Access:   vsec.Normal,
-// 			Category: "entity",
-// 			Func:     vnet.MakeCreateHandler("entity"),
-// 			Comment:  "Create an entity",
-// 		},
-// 		&vnet.Endpoint{
-// 			Method:   echo.PUT,
-// 			URL:      "sprw/endpoint",
-// 			Access:   vsec.Normal,
-// 			Category: "entity",
-// 			Func:     vnet.MakeUpdateHandler("entity"),
-// 			Comment:  "Update an entity",
-// 		},
-// 		&vnet.Endpoint{
-// 			Method:   echo.DELETE,
-// 			URL:      "sprw/endpoint/:id",
-// 			Access:   vsec.Normal,
-// 			Category: "entity",
-// 			Func:     vnet.MakeDeleteHandler("entity"),
-// 			Comment:  "Delete an entity",
-// 		},
-// 		&vnet.Endpoint{
-// 			Method:   echo.GET,
-// 			URL:      "sprw/endpoint/:id",
-// 			Access:   vsec.Normal,
-// 			Category: "entity",
-// 			Func:     vnet.MakeGetHandler("entity"),
-// 			Comment:  "Retrieves an entity",
-// 		},
-// 		&vnet.Endpoint{
-// 			Method:   echo.GET,
-// 			URL:      "sprw/endpoint",
-// 			Access:   vsec.Normal,
-// 			Category: "entity",
-// 			Func:     vnet.MakeGetAllHandler("entity", "createdAt"),
-// 			Comment:  "Retrieves range of entities",
-// 		},
-// 	}
-// }
+func authenticateEntity(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Gen entity password")
+	creds := struct {
+		EntityID string `json:"entityID"`
+		Owner    string `json:"owner"`
+		Secret   string `json:"secret"`
+	}{}
+	err = ctx.Bind(&creds)
+	if err == nil {
+		err = AuthenticateEntity(creds.EntityID, creds.Owner, creds.Secret)
+	}
+	var data map[string]interface{}
+	if err == nil {
+		token := jwt.New(jwt.SigningMethodHS256)
+		claims := token.Claims.(jwt.MapClaims)
+		claims["entityID"] = creds.EntityID
+		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+		claims["access"] = vsec.Normal
+		var signed string
+		//@TODO get key from somewhere
+		signed, err = token.SignedString("valrrwwssffgsdgfksdjfghsdlgnsda")
+		if err == nil {
+			data = make(map[string]interface{})
+			data["token"] = signed
+		} else {
+			msg = "Failed to sign token"
+			status = http.StatusInternalServerError
+		}
+	}
+	//generate JWT token and send
+	vnet.AuditedSendX(ctx, vlog.M{
+		"entityID": creds.EntityID,
+		"owner":    creds.Owner,
+	}, &vnet.Result{
+		Status: status,
+		Op:     "entity_gen_secret",
+		Msg:    msg,
+		OK:     err == nil,
+		Data:   data,
+		Err:    vcmn.ErrString(err),
+	})
+	return vlog.LogError("Sprw:Net", err)
+}
