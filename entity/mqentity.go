@@ -6,6 +6,7 @@ import (
 
 	"github.com/satori/go.uuid"
 	"github.com/varunamachi/vaali/vapp"
+	"github.com/varunamachi/vaali/vcmn"
 	"github.com/varunamachi/vaali/vdb"
 	"github.com/varunamachi/vaali/vlog"
 	"gopkg.in/hlandau/passlib.v1"
@@ -78,7 +79,7 @@ func CreateEntitySecret(entityID string, owner string) (
 			},
 		})
 	}
-	return secret, err
+	return secret, vlog.LogError("Sprw:Mongo", err)
 }
 
 //AuthenticateEntity - authenticates an entity with given ID and owner using
@@ -119,6 +120,32 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 			err = errors.New("Failed to varify password")
 		}
 	}
-	return vlog.LogError("UMan:Mongo", err)
-	return err
+	return vlog.LogError("Sprw:Mongo", err)
+}
+
+//InsertValues - insert values into parameters provided by an entity
+func InsertValues(entityID, userID string, values map[string]vcmn.ParamValue) (
+	err error) {
+	//use one document for an hour
+	//use array of values for each parameter
+	return vlog.LogError("Sprw:Mongo", err)
+}
+
+//SetParam - set value for a parameter exposed by an entity
+func SetParam(entityID, userID, paramName string, value vcmn.ParamValue) (
+	err error) {
+	return vlog.LogError("Sprw:Mongo", err)
+}
+
+//GetValues - get values for all parameters of an entity that is inserted by
+//the entity
+func GetValues(entityID, userID string) (values map[string]vcmn.ParamValue,
+	err error) {
+	return values, vlog.LogError("Sprw:Mongo", err)
+}
+
+//ReadParamValue - read value for a parameter that is set by the user.
+func ReadParamValue(entityID, paramName string) (
+	val vcmn.ParamValue, err error) {
+	return val, vlog.LogError("Sprw:Mongo", err)
 }

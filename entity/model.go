@@ -47,3 +47,12 @@ func (e *Entity) SetModInfo(at time.Time, by string) {
 func (e *Entity) ID() bson.ObjectId {
 	return e.OID
 }
+
+//ParamValueEntry - entry for bunch of values for a parameter associated with
+//an entity
+type ParamValueEntry struct {
+	EntityID   string                       `json:"entityID" bson:"entityID"`
+	EnitiyName string                       `json:"entityName" bson:"entityName"`
+	Hour       int                          `json:"hour" bson:"hour"`
+	Values     map[string][]vcmn.ParamValue `json:"values" bson:"values"`
+}
