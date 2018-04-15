@@ -124,7 +124,7 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 }
 
 //InsertValues - insert values into parameters provided by an entity
-func InsertValues(entityID, userID string, values map[string]vcmn.ParamValue) (
+func InsertValues(entityID, userID string, values map[string]ParamValue) (
 	err error) {
 	//use one document for an hour
 	//use array of values for each parameter
@@ -132,20 +132,27 @@ func InsertValues(entityID, userID string, values map[string]vcmn.ParamValue) (
 }
 
 //SetParam - set value for a parameter exposed by an entity
-func SetParam(entityID, userID, paramName string, value vcmn.ParamValue) (
+func SetParam(entityID, userID, paramName string, value ParamValue) (
 	err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
 //GetValues - get values for all parameters of an entity that is inserted by
 //the entity
-func GetValues(entityID, userID string) (values map[string]vcmn.ParamValue,
+func GetValues(entityID, userID, param string, dayRange vcmn.DateRange) (
+	values []*ParamEntry,
 	err error) {
+	// start := now.New(dayRange.From).BeginningOfDay()
+	// end := now.New(dayRange.To).EndOfDay()
+	// values = make([]*EntityEntry, 0, 100)
+	conn := vdb.DefaultMongoConn()
+	defer conn.Close()
+	// err = conn.C()
 	return values, vlog.LogError("Sprw:Mongo", err)
 }
 
 //ReadParamValue - read value for a parameter that is set by the user.
 func ReadParamValue(entityID, paramName string) (
-	val vcmn.ParamValue, err error) {
+	val ParamValue, err error) {
 	return val, vlog.LogError("Sprw:Mongo", err)
 }

@@ -8,6 +8,12 @@
   version = "v3.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/jinzhu/now"
+  packages = ["."]
+  revision = "b7dfa9a2450405d4ee01eb238dcb873b3dc5336c"
+
+[[projects]]
   name = "github.com/labstack/echo"
   packages = [".","middleware"]
   revision = "b338075a0fc6e1a0683dbf03d09b4957a289e26f"
@@ -106,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5f1c9d22988bcf151101da2796cc0b0b64cc4347d792874d6002bc34022e2df1"
+  inputs-digest = "d50ea84826cd2e98fba1d436dd62586af5854493764944a6ed218fc5d3c3c384"
   solver-name = "gps-cdcl"
   solver-version = 1
