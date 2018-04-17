@@ -146,10 +146,12 @@ func GetValues(entityID, owner, paramID string, dayRange vcmn.DateRange) (
 	end := now.New(dayRange.To)
 	startDay := start.BeginningOfDay()
 	endDay := end.EndOfDay()
-	// startHr := start.Hour()
-	// endHr := end.Hour()
-	// startMn := start.Minute()
-	// endMn := end.Minute()
+	startHr := start.Hour()
+	endHr := end.Hour()
+	startMn := start.Minute()
+	endMn := end.Minute()
+	mnPropStart := fmt.Sprintf("values.%d", startHr)
+	mnPropEnd := fmt.Sprintf("values.%d", endHr)
 	values = make([]*ParamEntry, 0, 100)
 	conn := vdb.DefaultMongoConn()
 	defer conn.Close()
@@ -157,9 +159,10 @@ func GetValues(entityID, owner, paramID string, dayRange vcmn.DateRange) (
 		"$and": []bson.M{
 			bson.M{"entityID": entityID},
 			bson.M{"paramID": paramID},
-			bson.M{"$gte": bson.M{"day": start}},
-			bson.M{"$lte": bson.M{"day": end}},
-			// bson.M{"$gte": bson.M{"values": start}},
+			bson.M{"$gte": bson.M{"day": startDay}},
+			bson.M{"$lte": bson.M{"day": endDay}},
+			bson.M{"$gte": bson.M{mnPropStart: startMn}},
+			bson.M{"$lte": bson.M{mnPropEnd: endMn}},
 		},
 	}).All(&values)
 	return values, vlog.LogError("Sprw:Mongo", err)
