@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jinzhu/now"
 	"github.com/satori/go.uuid"
 	"github.com/varunamachi/vaali/vapp"
 	"github.com/varunamachi/vaali/vcmn"
@@ -123,31 +124,44 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
-//InsertValues - insert values into parameters provided by an entity
-func InsertValues(entityID, userID string, values map[string]ParamValue) (
-	err error) {
+//InsertParamValue - Insert param value given by entity into database
+func InsertParamValue(value ParamValue) (err error) {
 	//use one document for an hour
 	//use array of values for each parameter
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
 //SetParam - set value for a parameter exposed by an entity
-func SetParam(entityID, userID, paramName string, value ParamValue) (
+func SetParam(value ParamValue) (
 	err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
 //GetValues - get values for all parameters of an entity that is inserted by
 //the entity
-func GetValues(entityID, userID, param string, dayRange vcmn.DateRange) (
+func GetValues(entityID, owner, paramID string, dayRange vcmn.DateRange) (
 	values []*ParamEntry,
 	err error) {
-	// start := now.New(dayRange.From).BeginningOfDay()
-	// end := now.New(dayRange.To).EndOfDay()
-	// values = make([]*EntityEntry, 0, 100)
+	start := now.New(dayRange.From)
+	end := now.New(dayRange.To)
+	startDay := start.BeginningOfDay()
+	endDay := end.EndOfDay()
+	// startHr := start.Hour()
+	// endHr := end.Hour()
+	// startMn := start.Minute()
+	// endMn := end.Minute()
+	values = make([]*ParamEntry, 0, 100)
 	conn := vdb.DefaultMongoConn()
 	defer conn.Close()
-	// err = conn.C()
+	err = conn.C(owner).Find(bson.M{
+		"$and": []bson.M{
+			bson.M{"entityID": entityID},
+			bson.M{"paramID": paramID},
+			bson.M{"$gte": bson.M{"day": start}},
+			bson.M{"$lte": bson.M{"day": end}},
+			// bson.M{"$gte": bson.M{"values": start}},
+		},
+	}).All(&values)
 	return values, vlog.LogError("Sprw:Mongo", err)
 }
 

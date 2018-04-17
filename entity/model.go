@@ -48,42 +48,25 @@ func (e *Entity) ID() bson.ObjectId {
 	return e.OID
 }
 
-//ParamValueEntry - entry for bunch of values for a parameter associated with
-//an entity
-// type ParamValueEntry struct {
-// 	EntityID   string                       `json:"entityID" bson:"entityID"`
-// 	EnitiyName string                       `json:"entityName" bson:"entityName"`
-// 	Hour       int                          `json:"hour" bson:"hour"`
-// 	Values     map[string][]vcmn.ParamValue `json:"values" bson:"values"`
-// }
-
-// type HourEntry struct {
-// 	Hour   time.Time       `json:"hour" bson:"hour"`
-// 	Values map[int]float32 `json:"values" bson:"values"`
-// 	States map[int]string  `json:"states" bson:"states"`
-// }
-
+//ParamDesc - describes a parameter
 type ParamDesc struct {
+	EntityID  string `json:"entityID" bson:"entityID"`
 	ParamID   string `json:"param" bson:"param"`
 	ParamName string `json:"paramName" bson:"paramName"`
 	Unit      string `json:"unit" bson:"unit"`
 }
 
+//ParamValue - parameter value along with parameter description
 type ParamValue struct {
-	ParamDesc
-	Value float32 `json:"value"`
+	ParamDesc `bson:",inline"`
+	Value     float32 `json:"value" bson:"value"`
 }
 
-//ParamEntry - data collection entry for a parameter for a day
+//ParamEntry - data collection entry for a parameter for a day with
+// granularity of 1 minute
 type ParamEntry struct {
+	ParamDesc `bson:",inline"`
+	Day       time.Time               `json:"day" bson:"day"`
 	Total     float64                 `json:"total" bson:"total"`
 	Values    map[int]map[int]float32 `json:"values" bson:"values"`
-	ParamDesc `bson:",inline"`
 }
-
-//EntityEntry - data collection entry for a day for a an entity
-// type EntityEntry struct {
-// 	EntityID string
-// 	Day      time.Time             `json:"day" bson:"day"`
-// 	Params   map[string]ParamEntry `json:"params" bson:"params"`
-// }
