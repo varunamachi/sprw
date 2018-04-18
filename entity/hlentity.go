@@ -71,3 +71,40 @@ func authenticateEntity(ctx echo.Context) (err error) {
 	})
 	return vlog.LogError("Sprw:Net", err)
 }
+
+func insertParamValue(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Insert param value")
+	var paramValue ParamValue
+	err = ctx.Bind(&paramValue)
+	if err == nil {
+		err = InsertParamValue(GetEntityOwner(ctx), &paramValue)
+		if err != nil {
+			msg = "Failed to add parameter value into database"
+			status = http.StatusInternalServerError
+		}
+	} else {
+		msg = "Could not retrieve parameter value"
+		status = http.StatusBadRequest
+	}
+	vnet.AuditedSend(ctx, &vnet.Result{
+		Status: status,
+		Op:     "entity_insert_value",
+		Msg:    msg,
+		OK:     err == nil,
+		Data: vlog.M{
+			"owner": "", //get it from context
+			"value": paramValue,
+		},
+		Err: vcmn.ErrString(err),
+	})
+	return vlog.LogError("Sprw:Net", err)
+}
+
+func getParamValues(ctx echo.Context) (err error) {
+	return vlog.LogError("Sprw:Net", err)
+}
+
+//GetEntityOwner - retrieves name of the owner of the entity from context
+func GetEntityOwner(ctx echo.Context) (owner string) {
+	return owner
+}

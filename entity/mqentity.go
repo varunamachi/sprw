@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jinzhu/now"
 	"github.com/satori/go.uuid"
@@ -125,33 +126,56 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 }
 
 //InsertParamValue - Insert param value given by entity into database
-func InsertParamValue(value ParamValue) (err error) {
+func InsertParamValue(owner string, value *ParamValue) (err error) {
 	//use one document for an hour
 	//use array of values for each parameter
+	t := time.Now()
+	day := now.New(t).BeginningOfDay()
+
+	conn := vdb.DefaultMongoConn()
+	defer conn.Close()
+	err = preallocateIfNotExist(conn)
+	if err == nil {
+		minuteSelector := fmt.Sprintf("values.%02d.%02d", t.Hour(), t.Minute())
+		err = conn.C(owner).Update(bson.M{
+			"$and": []bson.M{
+				bson.M{"entityID": value.EntityID},
+				bson.M{"paramID": value.ParamID},
+				bson.M{"day": day},
+			},
+		}, bson.M{
+			minuteSelector: value.Value,
+		})
+	}
 	return vlog.LogError("Sprw:Mongo", err)
+}
+
+func preallocateIfNotExist(conn *vdb.MongoConn) (err error) {
+	return err
 }
 
 //SetParam - set value for a parameter exposed by an entity
-func SetParam(value ParamValue) (
-	err error) {
+func SetParam(value ParamValue) (err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
-//GetValues - get values for all parameters of an entity that is inserted by
-//the entity
-func GetValues(entityID, owner, paramID string, dayRange vcmn.DateRange) (
-	values []*ParamEntry,
-	err error) {
+//GetValuesForDayRange - get values for all parameters of an entity that
+//is inserted by the entity between given days
+func GetValuesForDayRange(
+	entityID,
+	owner,
+	paramID string,
+	dayRange vcmn.DateRange) (values []*ParamEntry, err error) {
 	start := now.New(dayRange.From)
 	end := now.New(dayRange.To)
 	startDay := start.BeginningOfDay()
 	endDay := end.EndOfDay()
-	startHr := start.Hour()
-	endHr := end.Hour()
-	startMn := start.Minute()
-	endMn := end.Minute()
-	mnPropStart := fmt.Sprintf("values.%d", startHr)
-	mnPropEnd := fmt.Sprintf("values.%d", endHr)
+	// startHr := start.Hour()
+	// endHr := end.Hour()
+	// startMn := start.Minute()
+	// endMn := end.Minute()
+	// mnPropStart := fmt.Sprintf("values.%02d", startHr)
+	// mnPropEnd := fmt.Sprintf("values.%02d", endHr)
 	values = make([]*ParamEntry, 0, 100)
 	conn := vdb.DefaultMongoConn()
 	defer conn.Close()
@@ -161,8 +185,37 @@ func GetValues(entityID, owner, paramID string, dayRange vcmn.DateRange) (
 			bson.M{"paramID": paramID},
 			bson.M{"$gte": bson.M{"day": startDay}},
 			bson.M{"$lte": bson.M{"day": endDay}},
-			bson.M{"$gte": bson.M{mnPropStart: startMn}},
-			bson.M{"$lte": bson.M{mnPropEnd: endMn}},
+		},
+	}).All(&values)
+	return values, vlog.LogError("Sprw:Mongo", err)
+}
+
+//GetValuesForADay - get values for all parameters of an entity that
+//is inserted by the entity in a single day
+func GetValuesForADay(
+	entityID,
+	owner,
+	paramID string,
+	day time.Time) (values []*ParamEntry, err error) {
+	start := now.New(day)
+	end := now.New(day)
+	startDay := start.BeginningOfDay()
+	endDay := end.EndOfDay()
+	// startHr := start.Hour()
+	// endHr := end.Hour()
+	// startMn := start.Minute()
+	// endMn := end.Minute()
+	// mnPropStart := fmt.Sprintf("values.%02d", startHr)
+	// mnPropEnd := fmt.Sprintf("values.%02d", endHr)
+	values = make([]*ParamEntry, 0, 100)
+	conn := vdb.DefaultMongoConn()
+	defer conn.Close()
+	err = conn.C(owner).Find(bson.M{
+		"$and": []bson.M{
+			bson.M{"entityID": entityID},
+			bson.M{"paramID": paramID},
+			bson.M{"$gte": bson.M{"day": startDay}},
+			bson.M{"$lte": bson.M{"day": endDay}},
 		},
 	}).All(&values)
 	return values, vlog.LogError("Sprw:Mongo", err)
