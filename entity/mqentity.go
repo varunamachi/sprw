@@ -159,9 +159,9 @@ func SetParam(value ParamValue) (err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
-//GetValuesForDayRange - get values for all parameters of an entity that
+//GetValuesForDateRange - get values for all parameters of an entity that
 //is inserted by the entity between given days
-func GetValuesForDayRange(
+func GetValuesForDateRange(
 	entityID,
 	owner,
 	paramID string,
@@ -190,9 +190,9 @@ func GetValuesForDayRange(
 	return values, vlog.LogError("Sprw:Mongo", err)
 }
 
-//GetValuesForADay - get values for all parameters of an entity that
+//GetValuesForSingleDay - get values for all parameters of an entity that
 //is inserted by the entity in a single day
-func GetValuesForADay(
+func GetValuesForSingleDay(
 	entityID,
 	owner,
 	paramID string,

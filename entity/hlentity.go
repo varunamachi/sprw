@@ -76,8 +76,9 @@ func insertParamValue(ctx echo.Context) (err error) {
 	status, msg := vnet.DefMS("Insert param value")
 	var paramValue ParamValue
 	err = ctx.Bind(&paramValue)
+	owner := GetEntityOwner(ctx)
 	if err == nil {
-		err = InsertParamValue(GetEntityOwner(ctx), &paramValue)
+		err = InsertParamValue(owner, &paramValue)
 		if err != nil {
 			msg = "Failed to add parameter value into database"
 			status = http.StatusInternalServerError
@@ -92,7 +93,7 @@ func insertParamValue(ctx echo.Context) (err error) {
 		Msg:    msg,
 		OK:     err == nil,
 		Data: vlog.M{
-			"owner": "", //get it from context
+			"owner": owner,
 			"value": paramValue,
 		},
 		Err: vcmn.ErrString(err),
@@ -100,7 +101,62 @@ func insertParamValue(ctx echo.Context) (err error) {
 	return vlog.LogError("Sprw:Net", err)
 }
 
-func getParamValues(ctx echo.Context) (err error) {
+func getParamValueForSingleDay(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Get param value for a day")
+	var vals []*ParamEntry
+	entityID := ctx.Param("entityID")
+	paramID := ctx.Param("paramID")
+	dayStr := ctx.Param("day")
+	var day time.Time
+	day, err = time.Parse(time.RFC3339Nano, dayStr)
+	owner := GetEntityOwner(ctx)
+	if err == nil {
+		vals, err = GetValuesForSingleDay(entityID, owner, paramID, day)
+		if err != nil {
+			msg = "Could not retrieve param value from database"
+			status = http.StatusInternalServerError
+		}
+	} else {
+		msg = "Invalid date provided"
+		status = http.StatusBadRequest
+	}
+	vnet.SendAndAuditOnErr(ctx, &vnet.Result{
+		Status: status,
+		Op:     "entity_get_day_vals",
+		Msg:    msg,
+		OK:     err == nil,
+		Data:   vals,
+		Err:    vcmn.ErrString(err),
+	})
+	return vlog.LogError("Sprw:Net", err)
+}
+
+func getParamValueForDateRange(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Get param value for day date range")
+	var vals []*ParamEntry
+	entityID := ctx.Param("entityID")
+	paramID := ctx.Param("paramID")
+	var dateRange vcmn.DateRange
+	dateRange, err = vnet.GetDateRange(ctx)
+	owner := ctx.Param("owner")
+	if err == nil {
+		vals, err = GetValuesForDateRange(entityID, owner, paramID, dateRange)
+		if err != nil {
+			msg = "Could not retrieve param value from database"
+			status = http.StatusInternalServerError
+		}
+	} else {
+		msg = "Invalid date range provided"
+		status = http.StatusBadRequest
+	}
+	vnet.SendAndAuditOnErr(ctx, &vnet.Result{
+		Status: status,
+		Op:     "entity_get_dayrange_vals",
+		Msg:    msg,
+		OK:     err == nil,
+		Data:   vals,
+		Err:    vcmn.ErrString(err),
+	})
 	return vlog.LogError("Sprw:Net", err)
 }
 
