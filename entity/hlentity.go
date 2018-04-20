@@ -76,7 +76,7 @@ func insertParamValue(ctx echo.Context) (err error) {
 	status, msg := vnet.DefMS("Insert param value")
 	var paramValue ParamValue
 	err = ctx.Bind(&paramValue)
-	owner := GetEntityOwner(ctx)
+	owner := vnet.GetString(ctx, "owner")
 	if err == nil {
 		err = InsertParamValue(owner, &paramValue)
 		if err != nil {
@@ -109,7 +109,7 @@ func getParamValueForSingleDay(ctx echo.Context) (err error) {
 	dayStr := ctx.Param("day")
 	var day time.Time
 	day, err = time.Parse(time.RFC3339Nano, dayStr)
-	owner := GetEntityOwner(ctx)
+	owner := vnet.GetString(ctx, "owner")
 	if err == nil {
 		vals, err = GetValuesForSingleDay(entityID, owner, paramID, day)
 		if err != nil {
@@ -158,9 +158,4 @@ func getParamValueForDateRange(ctx echo.Context) (err error) {
 		Err:    vcmn.ErrString(err),
 	})
 	return vlog.LogError("Sprw:Net", err)
-}
-
-//GetEntityOwner - retrieves name of the owner of the entity from context
-func GetEntityOwner(ctx echo.Context) (owner string) {
-	return owner
 }

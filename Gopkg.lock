@@ -65,7 +65,7 @@
   branch = "master"
   name = "github.com/varunamachi/vaali"
   packages = ["vapp","vcmn","vdb","vlog","vnet","vsec","vuman"]
-  revision = "c98ffaeee49a7ee80cfe75bc6c0949e838e98821"
+  revision = "b0325d919d2a80a13b758696860c0dc06197f8c6"
 
 [[projects]]
   branch = "master"
@@ -112,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d50ea84826cd2e98fba1d436dd62586af5854493764944a6ed218fc5d3c3c384"
+  inputs-digest = "d33b42eec0f8949f974d56124c9bff74c45af2914fe5da1b69078d0e319bf9b3"
   solver-name = "gps-cdcl"
   solver-version = 1
