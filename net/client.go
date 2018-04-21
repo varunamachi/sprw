@@ -21,9 +21,18 @@ func NewClient(address, versionStr string) *SparrowClient {
 //EntityAuth - authenticate the entity
 func (ec *SparrowClient) EntityAuth(
 	entityID, owner, secret string) (err error) {
-	ec.Post(map[string]string{
+	rr := ec.Post(map[string]string{
 		"entityID": entityID,
 		"owner":    owner,
-		"secret":   secret}, vsec.Public, "authEntity")
+		"secret":   secret}, vsec.Public, "entity/auth")
+	data := struct {
+		Token string     `json:"token"`
+		User  *vsec.User `json:"user"`
+	}{}
+	err = rr.Read(&data)
+	if err == nil {
+		ec.Client.Token = data.Token
+		ec.Client.User = data.User
+	}
 	return vlog.LogError("Sprw:Client", err)
 }

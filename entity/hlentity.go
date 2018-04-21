@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/varunamachi/vaali/vuman"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/varunamachi/vaali/vcmn"
@@ -38,23 +40,41 @@ func authenticateEntity(ctx echo.Context) (err error) {
 	err = ctx.Bind(&creds)
 	if err == nil {
 		err = AuthenticateEntity(creds.EntityID, creds.Owner, creds.Secret)
+		if err != nil {
+			msg = "Authentication failed"
+			status = http.StatusUnauthorized
+		}
+	} else {
+		msg = "Failed to retrieve credentials"
+		status = http.StatusBadRequest
 	}
 	var data map[string]interface{}
 	if err == nil {
-		token := jwt.New(jwt.SigningMethodHS256)
-		claims := token.Claims.(jwt.MapClaims)
-		claims["entityID"] = creds.EntityID
-		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-		claims["access"] = vsec.Normal
-		var signed string
-		//@TODO get key from somewhere
-		signed, err = token.SignedString("valrrwwssffgsdgfksdjfghsdlgnsda")
+		var user *vsec.User
+		user, err = vuman.GetUser(creds.Owner)
 		if err == nil {
-			data = make(map[string]interface{})
-			data["token"] = signed
+			token := jwt.New(jwt.SigningMethodHS256)
+			claims := token.Claims.(jwt.MapClaims)
+			claims["entityID"] = creds.EntityID
+			claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+			claims["access"] = vsec.Normal
+			claims["userID"] = user.ID
+			claims["userName"] = user.FirstName + " " + user.LastName
+			var signed string
+			//@TODO get key from somewhere
+			signed, err = token.SignedString("valrrwwssffgsdgfksdjfghsdlgnsda")
+			if err == nil {
+				data = make(map[string]interface{})
+				data["token"] = signed
+				data["user"] = user
+
+			} else {
+				msg = "Failed to sign token"
+				status = http.StatusInternalServerError
+			}
 		} else {
-			msg = "Failed to sign token"
-			status = http.StatusInternalServerError
+			msg = "Could not retrieve owner information"
+			status = http.StatusUnauthorized
 		}
 	}
 	//generate JWT token and send
