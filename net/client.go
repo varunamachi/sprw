@@ -9,6 +9,7 @@ import (
 //SparrowClient - struct to keep track of entity authentication information
 type SparrowClient struct {
 	*vnet.Client
+	EntityID string
 }
 
 //NewClient - creates a new sparrow client
@@ -33,6 +34,25 @@ func (ec *SparrowClient) EntityAuth(
 	if err == nil {
 		ec.Client.Token = data.Token
 		ec.Client.User = data.User
+		ec.EntityID = entityID
 	}
 	return vlog.LogError("Sprw:Client", err)
 }
+
+//RenewAuth - renew auth token before it expires
+func (ec *SparrowClient) RenewAuth() (err error) {
+	rr := ec.Post(map[string]string{
+		"entityID": ec.EntityID,
+		"owner":    ec.Client.User.ID,
+	}, vsec.Public, "entity/auth")
+	var token string
+	err = rr.Read(&token)
+	if err == nil {
+		ec.Client.Token = token
+	}
+	return vlog.LogError("Sprw:Client", err)
+}
+
+// func (ec SparrowClient) InsertParamValue(value ) {
+
+// }

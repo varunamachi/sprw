@@ -62,7 +62,7 @@ func authenticateEntity(ctx echo.Context) (err error) {
 			claims["userName"] = user.FirstName + " " + user.LastName
 			var signed string
 			//@TODO get key from somewhere
-			signed, err = token.SignedString("valrrwwssffgsdgfksdjfghsdlgnsda")
+			signed, err = token.SignedString(vnet.GetJWTKey())
 			if err == nil {
 				data = make(map[string]interface{})
 				data["token"] = signed
@@ -83,10 +83,59 @@ func authenticateEntity(ctx echo.Context) (err error) {
 		"owner":    creds.Owner,
 	}, &vnet.Result{
 		Status: status,
-		Op:     "entity_gen_secret",
+		Op:     "entity_auth",
 		Msg:    msg,
 		OK:     err == nil,
 		Data:   data,
+		Err:    vcmn.ErrString(err),
+	})
+	return vlog.LogError("Sprw:Net", err)
+}
+
+func renewAuth(ctx echo.Context) (err error) {
+	status, msg := vnet.DefMS("Gen entity password")
+	creds := struct {
+		EntityID string `json:"entityID"`
+		Owner    string `json:"owner"`
+	}{}
+	err = ctx.Bind(&creds)
+	if err != nil {
+		msg = "Failed to retrieve entity info"
+		status = http.StatusBadRequest
+	}
+	var t string
+	if err == nil {
+		var user *vsec.User
+		user, err = vuman.GetUser(creds.Owner)
+		if err == nil {
+			token := jwt.New(jwt.SigningMethodHS256)
+			claims := token.Claims.(jwt.MapClaims)
+			claims["entityID"] = creds.EntityID
+			claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+			claims["access"] = vsec.Normal
+			claims["userID"] = user.ID
+			claims["userName"] = user.FirstName + " " + user.LastName
+			//@TODO get key from somewhere
+			t, err = token.SignedString(vnet.GetJWTKey())
+			if err != nil {
+				msg = "Failed to sign token"
+				status = http.StatusInternalServerError
+			}
+		} else {
+			msg = "Could not retrieve owner information"
+			status = http.StatusUnauthorized
+		}
+	}
+	//generate JWT token and send
+	vnet.AuditedSendX(ctx, vlog.M{
+		"entityID": creds.EntityID,
+		"owner":    creds.Owner,
+	}, &vnet.Result{
+		Status: status,
+		Op:     "entity_auth_renew",
+		Msg:    msg,
+		OK:     err == nil,
+		Data:   t,
 		Err:    vcmn.ErrString(err),
 	})
 	return vlog.LogError("Sprw:Net", err)
