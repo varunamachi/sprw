@@ -228,3 +228,11 @@ func getParamValueForDateRange(ctx echo.Context) (err error) {
 	})
 	return vlog.LogError("Sprw:Net", err)
 }
+
+func setParamValue(ctx echo.Context) (err error) {
+	return vlog.LogError("Sprw:Net", err)
+}
+
+func getParamValue(ctx echo.Context) (err error) {
+	return vlog.LogError("Sprw:Net", err)
+}

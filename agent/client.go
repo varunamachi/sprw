@@ -1,6 +1,7 @@
-package net
+package agent
 
 import (
+	"github.com/varunamachi/sprw/entity"
 	"github.com/varunamachi/vaali/vlog"
 	"github.com/varunamachi/vaali/vnet"
 	"github.com/varunamachi/vaali/vsec"
@@ -32,8 +33,8 @@ func (ec *SparrowClient) EntityAuth(
 	}{}
 	err = rr.Read(&data)
 	if err == nil {
-		ec.Client.Token = data.Token
-		ec.Client.User = data.User
+		ec.Token = data.Token
+		ec.User = data.User
 		ec.EntityID = entityID
 	}
 	return vlog.LogError("Sprw:Client", err)
@@ -43,8 +44,8 @@ func (ec *SparrowClient) EntityAuth(
 func (ec *SparrowClient) RenewAuth() (err error) {
 	rr := ec.Post(map[string]string{
 		"entityID": ec.EntityID,
-		"owner":    ec.Client.User.ID,
-	}, vsec.Public, "entity/auth")
+		"owner":    ec.User.ID,
+	}, vsec.Public, "entity", "auth")
 	var token string
 	err = rr.Read(&token)
 	if err == nil {
@@ -53,6 +54,14 @@ func (ec *SparrowClient) RenewAuth() (err error) {
 	return vlog.LogError("Sprw:Client", err)
 }
 
-// func (ec SparrowClient) InsertParamValue(value ) {
+//InsertParamValue - inserts parameter value into
+func (ec *SparrowClient) InsertParamValue(
+	value entity.ParamValue) (err error) {
+	rr := ec.Post(value, vsec.Normal, "")
+	return vlog.LogError("Sprw:Entity", err)
+}
 
-// }
+func (ec *SparrowClient) ReadParamValue(paramID string) (
+	val float32, err error) {
+
+}
