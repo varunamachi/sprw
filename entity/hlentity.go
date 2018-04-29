@@ -191,7 +191,7 @@ func getParamValueForSingleDay(ctx echo.Context) (err error) {
 	}
 	vnet.SendAndAuditOnErr(ctx, &vnet.Result{
 		Status: status,
-		Op:     "entity_get_day_vals",
+		Op:     "entity_val_day_fetch",
 		Msg:    msg,
 		OK:     err == nil,
 		Data:   vals,
@@ -220,7 +220,7 @@ func getParamValueForDateRange(ctx echo.Context) (err error) {
 	}
 	vnet.SendAndAuditOnErr(ctx, &vnet.Result{
 		Status: status,
-		Op:     "entity_get_dayrange_vals",
+		Op:     "entity_val_range_fetch",
 		Msg:    msg,
 		OK:     err == nil,
 		Data:   vals,
