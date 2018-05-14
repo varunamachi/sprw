@@ -9,8 +9,8 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/varunamachi/vaali/vapp"
 	"github.com/varunamachi/vaali/vcmn"
-	"github.com/varunamachi/vaali/vdb"
 	"github.com/varunamachi/vaali/vlog"
+	"github.com/varunamachi/vaali/vmgo"
 	"gopkg.in/hlandau/passlib.v1"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -23,7 +23,7 @@ func Init(app *vapp.App) (err error) {
 
 //Setup - setup function for entity module
 func Setup(app *vapp.App) (err error) {
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	err = conn.C("entity").EnsureIndex(mgo.Index{
 		Key:        []string{"name", "createdAt"},
@@ -37,7 +37,7 @@ func Setup(app *vapp.App) (err error) {
 
 //Reset - sparrow-entity reset
 func Reset(app *vapp.App) (err error) {
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	err = conn.C("users").DropIndex("name", "createdAt")
 	if err == nil {
@@ -50,7 +50,7 @@ func Reset(app *vapp.App) (err error) {
 //communitcate with the server
 func CreateEntitySecret(entityID string, owner string) (
 	secret string, err error) {
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	var entity Entity
 	err = conn.C("entity").
@@ -90,7 +90,7 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 	//generate hash for secret
 	//get hash from database
 	//compare...
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	secret := bson.M{}
 	err = conn.C("entity_secret").
@@ -132,7 +132,7 @@ func InsertParamValue(owner string, value *ParamValue) (err error) {
 	t := time.Now()
 	day := now.New(t).BeginningOfDay()
 
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	err = preallocateIfNotExist(conn)
 	if err == nil {
@@ -150,7 +150,7 @@ func InsertParamValue(owner string, value *ParamValue) (err error) {
 	return vlog.LogError("Sprw:Mongo", err)
 }
 
-func preallocateIfNotExist(conn *vdb.MongoConn) (err error) {
+func preallocateIfNotExist(conn *vmgo.MongoConn) (err error) {
 	return err
 }
 
@@ -177,7 +177,7 @@ func GetValuesForDateRange(
 	// mnPropStart := fmt.Sprintf("values.%02d", startHr)
 	// mnPropEnd := fmt.Sprintf("values.%02d", endHr)
 	values = make([]*ParamEntry, 0, 100)
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	err = conn.C(owner).Find(bson.M{
 		"$and": []bson.M{
@@ -208,7 +208,7 @@ func GetValuesForSingleDay(
 	// mnPropStart := fmt.Sprintf("values.%02d", startHr)
 	// mnPropEnd := fmt.Sprintf("values.%02d", endHr)
 	values = make([]*ParamEntry, 0, 100)
-	conn := vdb.DefaultMongoConn()
+	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	err = conn.C(owner).Find(bson.M{
 		"$and": []bson.M{

@@ -3,7 +3,7 @@ package sprw
 import (
 	"github.com/varunamachi/sprw/entity"
 	"github.com/varunamachi/vaali/vapp"
-	"github.com/varunamachi/vaali/vdb"
+	"github.com/varunamachi/vaali/vmgo"
 	"github.com/varunamachi/vaali/vnet"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -18,7 +18,7 @@ func NewModule() *vapp.Module {
 		Factories: []vapp.Factory{
 			vapp.Factory{
 				DataType: "entity",
-				Func: func() vdb.StoredItem {
+				Func: func() vmgo.StoredItem {
 					return &entity.Entity{}
 				},
 			},

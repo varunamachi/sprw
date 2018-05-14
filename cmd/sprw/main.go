@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/varunamachi/vaali/vdb"
+	"github.com/varunamachi/vaali/vmgo"
 
 	"github.com/varunamachi/sprw"
 	"github.com/varunamachi/vaali/vapp"
@@ -28,6 +28,6 @@ func main() {
 		"Sprw entity manager",
 	)
 	app.Modules = append(app.Modules, sprw.NewModule())
-	vdb.SetDefaultDB("sprw")
+	vmgo.SetDefaultDB("sprw")
 	app.Exec(os.Args)
 }
