@@ -25,6 +25,7 @@ func main() {
 				Name: "Varuna Amachi",
 			},
 		},
+		true,
 		"Sprw entity manager",
 	)
 	app.Modules = append(app.Modules, sprw.NewModule())
