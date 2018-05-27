@@ -51,7 +51,7 @@ func authenticateEntity(ctx echo.Context) (err error) {
 	var data map[string]interface{}
 	if err == nil {
 		var user *vsec.User
-		user, err = vuman.GetUser(creds.Owner)
+		user, err = vuman.GetStorage().GetUser(creds.Owner)
 		if err == nil {
 			token := jwt.New(jwt.SigningMethodHS256)
 			claims := token.Claims.(jwt.MapClaims)
@@ -106,7 +106,7 @@ func renewAuth(ctx echo.Context) (err error) {
 	var t string
 	if err == nil {
 		var user *vsec.User
-		user, err = vuman.GetUser(creds.Owner)
+		user, err = vuman.GetStorage().GetUser(creds.Owner)
 		if err == nil {
 			token := jwt.New(jwt.SigningMethodHS256)
 			claims := token.Claims.(jwt.MapClaims)
