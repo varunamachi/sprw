@@ -61,8 +61,8 @@ func authenticateEntity(ctx echo.Context) (err error) {
 			claims["userID"] = user.ID
 			claims["userName"] = user.FirstName + " " + user.LastName
 			var signed string
-			//@TODO get key from somewhere
-			signed, err = token.SignedString(vnet.GetJWTKey())
+			key := vnet.GetJWTKey()
+			signed, err = token.SignedString(key)
 			if err == nil {
 				data = make(map[string]interface{})
 				data["token"] = signed
