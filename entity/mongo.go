@@ -59,7 +59,7 @@ func CreateEntitySecret(entityID string, owner string) (
 		}).
 		One(&entity)
 	if err == nil {
-		if entity.Owner != owner {
+		if entity.OwnerID != owner {
 			err = fmt.Errorf("%s is not the owner of entity with ID %s",
 				owner,
 				entityID)

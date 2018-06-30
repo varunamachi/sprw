@@ -16,11 +16,12 @@ type VariableAccess int
 
 //Entity - represents a entiry with variables
 type Entity struct {
-	OID        bson.ObjectId `json:"_id" bson:"_id"`
+	OID        bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name       string        `json:"name" bson:"name"`
 	Type       string        `json:"type" bson:"type"`
 	Location   string        `json:"location" bson:"location"`
-	Owner      string        `json:"owner" bson:"owner"`
+	OwnerID    string        `json:"ownerID" bson:"ownerID"`
+	OwnerName  string        `json:"ownerName" bson:"ownerName"`
 	Variables  []vcmn.Param  `json:"variables" bson:"variables"`
 	Readers    []string      `json:"readers" bson:"readers"`
 	Writers    []string      `json:"writers" bson:"writers"`
