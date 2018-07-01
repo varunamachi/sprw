@@ -9,7 +9,6 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/varunamachi/vaali/vapp"
 	"github.com/varunamachi/vaali/vcmn"
-	"github.com/varunamachi/vaali/vlog"
 	"github.com/varunamachi/vaali/vmgo"
 	"gopkg.in/hlandau/passlib.v1"
 	mgo "gopkg.in/mgo.v2"
@@ -32,7 +31,7 @@ func Setup(app *vapp.App) (err error) {
 		Background: true, // See notes.
 		Sparse:     true,
 	})
-	return vlog.LogError("Sprw:Mongo", err)
+	return vmgo.LogError("Sprw:Mongo", err)
 }
 
 //Reset - sparrow-entity reset
@@ -43,26 +42,26 @@ func Reset(app *vapp.App) (err error) {
 	if err == nil {
 		_, err = conn.C("entity").RemoveAll(bson.M{})
 	}
-	return vlog.LogError("Sprw:Mongo", err)
+	return vmgo.LogError("Sprw:Mongo", err)
 }
 
 //CreateEntitySecret - creates a secret that can be used by an entity to
 //communitcate with the server
-func CreateEntitySecret(entityID string, owner string) (
+func CreateEntitySecret(ent *Entity, owner string) (
 	secret string, err error) {
 	conn := vmgo.DefaultMongoConn()
 	defer conn.Close()
 	var entity Entity
 	err = conn.C("entity").
 		Find(bson.M{
-			"_id": bson.ObjectIdHex(entityID),
+			"_id": ent.OID,
 		}).
 		One(&entity)
 	if err == nil {
 		if entity.OwnerID != owner {
 			err = fmt.Errorf("%s is not the owner of entity with ID %s",
 				owner,
-				entityID)
+				ent.OID)
 		}
 	}
 	if err != nil {
@@ -73,7 +72,7 @@ func CreateEntitySecret(entityID string, owner string) (
 	secretHash, err = passlib.Hash(secret)
 	if err == nil {
 		_, err = conn.C("entity_secret").Upsert(bson.M{
-			"entityID": entityID,
+			"entityID": ent.OID,
 			"owner":    owner,
 		}, bson.M{
 			"$set": bson.M{
@@ -81,7 +80,7 @@ func CreateEntitySecret(entityID string, owner string) (
 			},
 		})
 	}
-	return secret, vlog.LogError("Sprw:Mongo", err)
+	return secret, vmgo.LogError("Sprw:Mongo", err)
 }
 
 //AuthenticateEntity - authenticates an entity with given ID and owner using
@@ -122,7 +121,7 @@ func AuthenticateEntity(entityID, owner, password string) (err error) {
 			err = errors.New("Failed to varify password")
 		}
 	}
-	return vlog.LogError("Sprw:Mongo", err)
+	return vmgo.LogError("Sprw:Mongo", err)
 }
 
 //InsertParamValue - Insert param value given by entity into database
@@ -147,7 +146,7 @@ func InsertParamValue(owner string, value *ParamValue) (err error) {
 			minuteSelector: value.Value,
 		})
 	}
-	return vlog.LogError("Sprw:Mongo", err)
+	return vmgo.LogError("Sprw:Mongo", err)
 }
 
 func preallocateIfNotExist(conn *vmgo.MongoConn) (err error) {
@@ -156,7 +155,7 @@ func preallocateIfNotExist(conn *vmgo.MongoConn) (err error) {
 
 //SetParam - set value for a parameter exposed by an entity
 func SetParam(value ParamValue) (err error) {
-	return vlog.LogError("Sprw:Mongo", err)
+	return vmgo.LogError("Sprw:Mongo", err)
 }
 
 //GetValuesForDateRange - get values for all parameters of an entity that
@@ -187,7 +186,7 @@ func GetValuesForDateRange(
 			bson.M{"$lte": bson.M{"day": endDay}},
 		},
 	}).All(&values)
-	return values, vlog.LogError("Sprw:Mongo", err)
+	return values, vmgo.LogError("Sprw:Mongo", err)
 }
 
 //GetValuesForSingleDay - get values for all parameters of an entity that
@@ -218,11 +217,11 @@ func GetValuesForSingleDay(
 			bson.M{"$lte": bson.M{"day": endDay}},
 		},
 	}).All(&values)
-	return values, vlog.LogError("Sprw:Mongo", err)
+	return values, vmgo.LogError("Sprw:Mongo", err)
 }
 
 //ReadParamValue - read value for a parameter that is set by the user.
 func ReadParamValue(entityID, paramName string) (
 	val ParamValue, err error) {
-	return val, vlog.LogError("Sprw:Mongo", err)
+	return val, vmgo.LogError("Sprw:Mongo", err)
 }

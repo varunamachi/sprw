@@ -13,8 +13,10 @@ func NewModule() *vapp.Module {
 	return &vapp.Module{
 		Name:        "sprw",
 		Description: "The sparrow server",
-		Endpoints:   []*vnet.Endpoint{},
-		Commands:    []cli.Command{},
+		Endpoints: vnet.Merge(
+			entity.GetEndpoints(),
+		),
+		Commands: []cli.Command{},
 		Factories: []vapp.Factory{
 			vapp.Factory{
 				DataType: "entity",

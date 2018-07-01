@@ -16,9 +16,15 @@ import (
 
 func genEntityPassword(ctx echo.Context) (err error) {
 	status, msg := vnet.DefMS("Gen entity password")
-	entityID := ctx.Param("entityID")
+	var ent Entity
+	err = ctx.Bind(&ent)
 	var secret string
-	secret, err = CreateEntitySecret(entityID, vnet.GetString(ctx, "userID"))
+	if err == nil {
+		secret, err = CreateEntitySecret(&ent, vnet.GetString(ctx, "userID"))
+	} else {
+		msg = "Failed to unmarshall entity information"
+		status = http.StatusBadRequest
+	}
 	vnet.AuditedSendSecret(ctx, &vnet.Result{
 		Status: status,
 		Op:     "entity_gen_secret",
@@ -115,6 +121,7 @@ func renewAuth(ctx echo.Context) (err error) {
 			claims["access"] = vsec.Normal
 			claims["userID"] = user.ID
 			claims["userName"] = user.FirstName + " " + user.LastName
+			claims["userType"] = "agent"
 			//@TODO get key from somewhere
 			t, err = token.SignedString(vnet.GetJWTKey())
 			if err != nil {
