@@ -66,6 +66,8 @@ func authenticateEntity(ctx echo.Context) (err error) {
 			claims["access"] = vsec.Normal
 			claims["userID"] = user.ID
 			claims["userName"] = user.FirstName + " " + user.LastName
+			claims["userType"] = "entity"
+			ctx.Set("userID", user.FullName)
 			var signed string
 			key := vnet.GetJWTKey()
 			signed, err = token.SignedString(key)

@@ -18,7 +18,7 @@ func GetEndpoints() (endpoints []*vnet.Endpoint) {
 			Comment:  "Create Entity Password",
 		},
 		&vnet.Endpoint{
-			Method:   echo.PUT,
+			Method:   echo.POST,
 			URL:      "entity/auth",
 			Access:   vsec.Public,
 			Category: "entity",
