@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/labstack/echo"
   packages = [".","middleware"]
-  revision = "b338075a0fc6e1a0683dbf03d09b4957a289e26f"
-  version = "3.2.6"
+  revision = "6c54ff78a2351623e91ccf085d94a78d02b1882c"
+  version = "v3.3.2"
 
 [[projects]]
   name = "github.com/labstack/gommon"
@@ -65,7 +65,7 @@
   branch = "master"
   name = "github.com/varunamachi/vaali"
   packages = ["vapp","vcmn","vevt","vlog","vmgo","vnet","vsec","vuman"]
-  revision = "179ffbe2c00723016d9177fca905dd5df40cbfb1"
+  revision = "953c7ba1d026455403001aa2dfd32f5fb8d62be8"
 
 [[projects]]
   branch = "master"

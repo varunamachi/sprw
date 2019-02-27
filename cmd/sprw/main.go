@@ -28,6 +28,8 @@ func main() {
 		true,
 		"Sprw entity manager",
 	)
+	app.Commands = append(app.Commands,
+		*vmgo.MakeRequireMongo(vapp.DefaultServiceStartCmd()))
 	app.Modules = append(app.Modules, sprw.NewModule())
 	vmgo.SetDefaultDB("sprw")
 	app.Exec(os.Args)
